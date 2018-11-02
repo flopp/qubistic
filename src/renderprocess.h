@@ -3,9 +3,9 @@
 #include <QtCore/QDir>
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
-#include <QtGui/QPixmap>
 #include "configuration.h"
 
+class QPixmap;
 class QTemporaryDir;
 
 class RenderProcess: public QObject
@@ -22,7 +22,7 @@ public slots:
 
 signals:
     void finished();
-    void intermediate(QPixmap image, int shapes, double score);
+    void intermediate(QByteArray svgData, int shapes, double score);
     void aborted();
 
 private slots:
@@ -30,7 +30,7 @@ private slots:
     void readProcessOutput();
 
 private:
-    void cleanup();
+    void loadLastImage();
 
 private:
     QTemporaryDir* tempDir_{nullptr};
@@ -38,7 +38,8 @@ private:
 
     Configuration config_;
 
+    bool killed_{false};
     QString lastImage_;
-    int lastShapes_;
-    double lastScore_;
+    int lastShapes_{0};
+    double lastScore_{0};
 };

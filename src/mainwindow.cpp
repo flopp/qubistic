@@ -2,6 +2,7 @@
 #include <QtCore/QStandardPaths>
 #include <QtGui/QImageReader>
 #include <QtWidgets/QAbstractButton>
+#include <QtWidgets/QAbstractSlider>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 
@@ -101,14 +102,15 @@ void MainWindow::renderingFinished()
     ui_->settingsButton->setEnabled(true);
     ui_->imageSlider->setEnabled(true);
 
-    images_ << ImageInfo{startImage_, -1, 100.0};
+    images_ << ImageInfo{startImage_, QByteArray{}, -1, 100.0};
     ui_->imageSlider->setRange(0, images_.size() - 1);
     ui_->imageSlider->setValue(images_.size() - 2);
 }
 
-void MainWindow::renderingIntermediate(QPixmap image, int shapes, double score)
+
+void MainWindow::renderingIntermediate(QByteArray svgData, int shapes, double score)
 {
-    images_ << ImageInfo{image, shapes, score};
+    images_ << ImageInfo{QPixmap{}, svgData, shapes, score};
     showImage(images_.size() - 1);
 }
 
@@ -128,7 +130,11 @@ void MainWindow::showImage(int index)
     }
     const auto& info = images_[index];
     
-    ui_->imageWidget->showImage(info.image_);
+    if (!info.image_.isNull()) {
+        ui_->imageWidget->showImage(info.image_);
+    } else {
+        ui_->imageWidget->showSvgImage(info.svgData_);
+    }
 
     if (info.shapes_ < 0) {
         ui_->shapesLabel->setText("\u221e");
@@ -136,5 +142,4 @@ void MainWindow::showImage(int index)
         ui_->shapesLabel->setText(QString::number(info.shapes_));
     }
     ui_->scoreLabel->setText(QString::number(info.score_, 'f', 2));
-    
 }

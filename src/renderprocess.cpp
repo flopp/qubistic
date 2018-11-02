@@ -2,6 +2,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QRegularExpression>
 #include <QtCore/QTemporaryDir>
+#include <QtGui/QPixmap>
 #include "renderprocess.h"
 
 RenderProcess::RenderProcess(QObject* parent) :
@@ -45,13 +46,14 @@ void RenderProcess::start(const QPixmap& image, Configuration config)
     processArgs << "-nth" << "1";
     processArgs << "-m" << QString::number(static_cast<std::underlying_type<Configuration::ShapeType>::type>(config.shapeType));
     processArgs << "-i" << tempDir_->filePath("start.png");
-    processArgs << "-o" << tempDir_->filePath("result%d.png");
+    processArgs << "-o" << tempDir_->filePath("result%d.svg");
     if (config_.targetType == Configuration::TargetType::Shapes) {
         processArgs << "-n" << QString::number(config.targetShapes);
     } else {
         processArgs << "-n" << "10000";
     }
 
+    killed_ = false;
     QString exe = config_.primitivePath;
     process_->start(exe, processArgs);
 }
@@ -60,6 +62,7 @@ void RenderProcess::stop()
 {
     if (process_->state() != QProcess::NotRunning)
     {
+        killed_ = true;
         process_->kill();
         process_->waitForFinished();
     }
@@ -67,23 +70,22 @@ void RenderProcess::stop()
 
 void RenderProcess::processFinished(int /*exitCode*/, QProcess::ExitStatus /*exitStatus*/)
 {
-    readProcessOutput();
-    if (!lastImage_.isEmpty()) {
-        QPixmap image;
-        if (image.load(lastImage_, "png")) {
-            emit intermediate(image, lastShapes_, lastScore_);
-        } else {
-            qDebug() << "failed to load" << lastImage_;
+    if (!killed_) {
+        readProcessOutput();
+        if (!lastImage_.isEmpty()) {
+            loadLastImage();
         }
-        lastImage_.clear();
     }
     emit finished();
 }
 
 void RenderProcess::readProcessOutput()
 {
+    if (killed_) {
+        return;
+    }
     QRegularExpression re_status("^(\\d+): t=.*, score=([0-9\\.]+),");
-    QRegularExpression re_write("^writing\\s+(.*\\.png)");
+    QRegularExpression re_write("^writing\\s+(.*\\.svg)");
     QRegularExpressionMatch match;
     while (process_->canReadLine()) {
         QString line = QString::fromUtf8(process_->readLine());
@@ -94,14 +96,7 @@ void RenderProcess::readProcessOutput()
             continue;
         } else {
             if (!lastImage_.isEmpty()) {
-                QPixmap image;
-                if (image.load(lastImage_, "PNG")) {
-                    emit intermediate(image, lastShapes_, lastScore_);
-                } else {
-                    qDebug() << "failed to load" << lastImage_;
-                }
-                lastImage_.clear();
-                
+                loadLastImage();
                 if ((config_.targetType == Configuration::TargetType::Score) && (lastScore_ > config_.targetScore)) {
                     stop();
                 }
@@ -115,4 +110,20 @@ void RenderProcess::readProcessOutput()
             continue;
         }
     }
+}
+
+
+void RenderProcess::loadLastImage()
+{
+    if (lastImage_.isEmpty()) {
+        return;
+    }
+
+    QFile file(lastImage_);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "failed to load" << lastImage_;
+    } else {
+        emit intermediate(file.readAll(), lastShapes_, lastScore_);
+    }
+    lastImage_.clear();
 }
