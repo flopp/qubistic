@@ -41,7 +41,7 @@ void MainWindow::load()
         // use QImageReader with 'autoTransform' to automatically apply image rotation based on the EXIF data.
         QImageReader reader(fileName);
         reader.setAutoTransform(true);
-        QImage image = reader.read().scaled(QSize{1024, 1024}, Qt::KeepAspectRatio);
+        QImage image = reader.read();
         startImage_ = QPixmap::fromImage(image);
 
         runRenderer();
@@ -51,7 +51,7 @@ void MainWindow::load()
 void MainWindow::runRenderer()
 {  
     images_.clear();
-    ui_->imageLabel->setPixmap(startImage_);
+    ui_->imageWidget->showImage(startImage_);
     process_->start(startImage_, config_);
     
     ui_->loadButton->setEnabled(false);
@@ -112,7 +112,9 @@ void MainWindow::showImage(int index)
         return;
     }
     const auto& info = images_[index];
-    ui_->imageLabel->setPixmap(info.image_);
+    
+    ui_->imageWidget->showImage(info.image_);
+
     if (info.shapes_ < 0) {
         ui_->shapesLabel->setText("\u221e");
     } else {

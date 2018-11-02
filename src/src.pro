@@ -5,6 +5,7 @@ TARGET = qubistic
 TEMPLATE = app
 
 SOURCES += \
+    imagewidget.cpp \
     main.cpp \
     mainwindow.cpp \
     renderprocess.cpp \
@@ -12,6 +13,7 @@ SOURCES += \
 
 HEADERS += \
     configuration.h \
+    imagewidget.h \
     mainwindow.h \
     renderprocess.h \
     settingsdialog.h
