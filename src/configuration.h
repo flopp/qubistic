@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QtCore/QString>
+
 class Configuration
 {
 public:    
@@ -25,4 +27,6 @@ public:
     TargetType targetType{TargetType::Shapes};
     int targetShapes{100};
     double targetScore{95.9};
+
+    QString primitivePath{"primitive"};
 };

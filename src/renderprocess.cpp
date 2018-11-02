@@ -51,7 +51,8 @@ void RenderProcess::start(const QPixmap& image, Configuration config)
     } else {
         processArgs << "-n" << "10000";
     }
-    QString exe = "gopath/bin/primitive";
+
+    QString exe = config_.primitivePath;
     process_->start(exe, processArgs);
 }
 

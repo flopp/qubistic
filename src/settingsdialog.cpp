@@ -1,3 +1,4 @@
+#include <QtWidgets/QFileDialog>
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
 
@@ -25,6 +26,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) :
     connect(ui_->applyButton, &QAbstractButton::clicked, this, &SettingsDialog::accept);
     connect(ui_->applyRunButton, &QAbstractButton::clicked, this, &SettingsDialog::applyAndRunClicked);
     connect(ui_->cancelButton, &QAbstractButton::clicked, this, &SettingsDialog::reject);
+    connect(ui_->browseButton, &QAbstractButton::clicked, this, &SettingsDialog::browseClicked);
 }
 
 SettingsDialog::~SettingsDialog()
@@ -40,6 +42,7 @@ void SettingsDialog::toggleApplyAndRun(bool enabled)
 Configuration SettingsDialog::config() const
 {
     Configuration config;
+
     for (auto p: shapeTypeMapping_)
     {
         if (p.first->isChecked())
@@ -47,6 +50,7 @@ Configuration SettingsDialog::config() const
             config.shapeType = p.second;
         }
     }
+
     for (auto p: targetTypeMapping_)
     {
         if (p.first->isChecked())
@@ -54,8 +58,11 @@ Configuration SettingsDialog::config() const
             config.targetType = p.second;
         }
     }
+
     config.targetShapes = ui_->shapesInput->value();
     config.targetScore = ui_->scoreInput->value();
+
+    config.primitivePath = ui_->pathInput->text();
     return config;
 }
 
@@ -77,10 +84,20 @@ void SettingsDialog::setConfig(const Configuration& config)
     }
     ui_->shapesInput->setValue(config.targetShapes);
     ui_->scoreInput->setValue(config.targetScore);
+    ui_->pathInput->setText(config.primitivePath);
 }
 
 void SettingsDialog::applyAndRunClicked()
 {
     applyAndRun_ = true;
     accept();
+}
+
+void SettingsDialog::browseClicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select Primitive Executable", ui_->pathInput->text(), "Primitive Executable (primitive);;All Files (*)");
+    if (!fileName.isEmpty())
+    {
+        ui_->pathInput->setText(fileName);
+    }
 }

@@ -1,7 +1,9 @@
 #include <QtCore/QDebug>
+#include <QtCore/QStandardPaths>
 #include <QtGui/QImageReader>
 #include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
 
 #include "mainwindow.h"
 #include "renderprocess.h"
@@ -34,9 +36,9 @@ void MainWindow::load()
 {
     stop();
 
-    QString fileName = QFileDialog::getOpenFileName(this, "Open Image", "", "Image Files (*.png *.jpg *.JPG *.jpeg);;All Files (*)" );
+    QString fileName = QFileDialog::getOpenFileName(this, "Open Image", "", "Image Files (*.png *.jpg *.JPG *.jpeg);;All Files (*)");
     
-    if (fileName != "")
+    if (!fileName.isEmpty())
     {
         // use QImageReader with 'autoTransform' to automatically apply image rotation based on the EXIF data.
         QImageReader reader(fileName);
@@ -52,6 +54,19 @@ void MainWindow::runRenderer()
 {  
     images_.clear();
     ui_->imageWidget->showImage(startImage_);
+
+    if (config_.primitivePath.isEmpty())
+    {
+        QMessageBox::critical(this, "Qubistic", "Cannot find 'primitive' executable.");
+        return;
+    }
+    QString path = QStandardPaths::findExecutable(config_.primitivePath);
+    if (path.isEmpty())
+    {
+        QMessageBox::critical(this, "Qubistic", QString("Cannot determine path to selected 'primitive' executable:\n%1").arg(config_.primitivePath));
+        return;
+    }
+
     process_->start(startImage_, config_);
     
     ui_->loadButton->setEnabled(false);

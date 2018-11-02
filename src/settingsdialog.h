@@ -21,6 +21,7 @@ public:
 
 private slots:
     void applyAndRunClicked();
+    void browseClicked();
     
 private:
     Ui_SettingsDialog* ui_{nullptr};
