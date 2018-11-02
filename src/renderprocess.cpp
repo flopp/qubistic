@@ -4,6 +4,7 @@
 #include <QtCore/QTemporaryDir>
 #include <QtGui/QPixmap>
 #include "renderprocess.h"
+#include "settings.h"
 
 RenderProcess::RenderProcess(QObject* parent) :
     QObject(parent),
@@ -19,7 +20,7 @@ RenderProcess::~RenderProcess()
     delete tempDir_;
 }
 
-void RenderProcess::start(const QPixmap& image, Configuration config)
+void RenderProcess::start(const QPixmap& image)
 {
     stop();
 
@@ -35,8 +36,6 @@ void RenderProcess::start(const QPixmap& image, Configuration config)
     image.save(&file, "PNG");
     file.close();
  
-    config_ = config;
-
     lastImage_.clear();
     lastShapes_ = -1;
     lastScore_ = 0;
@@ -44,24 +43,25 @@ void RenderProcess::start(const QPixmap& image, Configuration config)
     QStringList processArgs;
     processArgs << "-v";
     processArgs << "-nth" << "1";
-    processArgs << "-m" << QString::number(static_cast<std::underlying_type<Configuration::ShapeType>::type>(config.shapeType));
+    processArgs << "-m" << QString::number(static_cast<std::underlying_type<ShapeType>::type>(settings().shapeType()));
     processArgs << "-i" << tempDir_->filePath("start.png");
     processArgs << "-o" << tempDir_->filePath("result%d.svg");
-    if (config_.targetType == Configuration::TargetType::Shapes) {
-        processArgs << "-n" << QString::number(config.targetShapes);
-    } else {
-        processArgs << "-n" << "10000";
+    switch (settings().targetType()) {
+        case TargetType::Shapes:
+            processArgs << "-n" << QString::number(settings().targetShapes());
+            break;
+        case TargetType::Score:
+            processArgs << "-n" << "10000";
+            break;
     }
 
     killed_ = false;
-    QString exe = config_.primitivePath;
-    process_->start(exe, processArgs);
+    process_->start(settings().primitiveBinPath(), processArgs);
 }
 
 void RenderProcess::stop()
 {
-    if (process_->state() != QProcess::NotRunning)
-    {
+    if (process_->state() != QProcess::NotRunning) {
         killed_ = true;
         process_->kill();
         process_->waitForFinished();
@@ -84,6 +84,7 @@ void RenderProcess::readProcessOutput()
     if (killed_) {
         return;
     }
+
     QRegularExpression re_status("^(\\d+): t=.*, score=([0-9\\.]+),");
     QRegularExpression re_write("^writing\\s+(.*\\.svg)");
     QRegularExpressionMatch match;
@@ -97,7 +98,7 @@ void RenderProcess::readProcessOutput()
         } else {
             if (!lastImage_.isEmpty()) {
                 loadLastImage();
-                if ((config_.targetType == Configuration::TargetType::Score) && (lastScore_ > config_.targetScore)) {
+                if ((settings().targetType() == TargetType::Score) && (lastScore_ > settings().targetScore())) {
                     stop();
                 }
             }

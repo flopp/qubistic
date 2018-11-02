@@ -3,7 +3,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
-#include "configuration.h"
 
 class QPixmap;
 class QTemporaryDir;
@@ -17,7 +16,7 @@ public:
     virtual ~RenderProcess();
     
 public slots:
-    void start(const QPixmap& startImage, Configuration config);
+    void start(const QPixmap& startImage);
     void stop();
 
 signals:
@@ -35,8 +34,6 @@ private:
 private:
     QTemporaryDir* tempDir_{nullptr};
     QProcess* process_{nullptr};
-
-    Configuration config_;
 
     bool killed_{false};
     QString lastImage_;

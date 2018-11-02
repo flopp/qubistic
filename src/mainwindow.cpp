@@ -1,5 +1,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QStandardPaths>
+#include <QtGui/QGuiApplication>
 #include <QtGui/QImageReader>
 #include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QAbstractSlider>
@@ -8,6 +9,7 @@
 
 #include "mainwindow.h"
 #include "renderprocess.h"
+#include "settings.h"
 #include "settingsdialog.h"
 #include "ui_mainwindow.h"
 
@@ -56,19 +58,17 @@ void MainWindow::runRenderer()
     images_.clear();
     ui_->imageWidget->showImage(startImage_);
 
-    if (config_.primitivePath.isEmpty())
-    {
-        QMessageBox::critical(this, "Qubistic", "Cannot find 'primitive' executable.");
+    if (settings().primitiveBinPath().isEmpty()) {
+        QMessageBox::critical(this, qApp->applicationName(), "Cannot find 'primitive' executable.");
         return;
     }
-    QString path = QStandardPaths::findExecutable(config_.primitivePath);
-    if (path.isEmpty())
-    {
-        QMessageBox::critical(this, "Qubistic", QString("Cannot determine path to selected 'primitive' executable:\n%1").arg(config_.primitivePath));
+    QString path = QStandardPaths::findExecutable(settings().primitiveBinPath());
+    if (path.isEmpty()) {
+        QMessageBox::critical(this, qApp->applicationName(), QString("Cannot determine path to selected 'primitive' executable:\n%1").arg(settings().primitiveBinPath()));
         return;
     }
 
-    process_->start(startImage_, config_);
+    process_->start(startImage_);
     
     ui_->loadButton->setEnabled(false);
     ui_->stopButton->setEnabled(true);
@@ -85,10 +85,7 @@ void MainWindow::showSettings()
 {
     SettingsDialog dialog{this};
     dialog.toggleApplyAndRun(!startImage_.isNull());
-    dialog.setConfig(config_);
-    if (dialog.exec() == QDialog::Accepted)
-    {
-        config_ = dialog.config();
+    if (dialog.exec() == QDialog::Accepted) {
         if (dialog.applyAndRun()) {
             runRenderer();
         }
@@ -124,8 +121,7 @@ void MainWindow::renderingAborted()
 
 void MainWindow::showImage(int index)
 {
-    if ((index < 0) || (index >= images_.size()))
-    {
+    if ((index < 0) || (index >= images_.size())) {
         return;
     }
     const auto& info = images_[index];

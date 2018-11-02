@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtWidgets/QDialog>
-#include "configuration.h"
+#include "settings.h"
 class QAbstractButton;
 class Ui_SettingsDialog;
 
@@ -14,18 +14,17 @@ public:
     virtual ~SettingsDialog();
     
     void toggleApplyAndRun(bool enabled);
-    Configuration config() const;
-    void setConfig(const Configuration& config);
-    
+
     bool applyAndRun() { return applyAndRun_; }
 
 private slots:
     void applyAndRunClicked();
     void browseClicked();
-    
+    void saveSettings();
+
 private:
     Ui_SettingsDialog* ui_{nullptr};
-    QList<QPair<QAbstractButton*, Configuration::ShapeType>> shapeTypeMapping_;
-    QList<QPair<QAbstractButton*, Configuration::TargetType>> targetTypeMapping_;
+    QList<QPair<QAbstractButton*, ShapeType>> shapeTypeMapping_;
+    QList<QPair<QAbstractButton*, TargetType>> targetTypeMapping_;
     bool applyAndRun_{false};
 };

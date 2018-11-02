@@ -9,13 +9,14 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     renderprocess.cpp \
+    settings.cpp \
     settingsdialog.cpp
 
 HEADERS += \
-    configuration.h \
     imagewidget.h \
     mainwindow.h \
     renderprocess.h \
+    settings.h \
     settingsdialog.h
 
 FORMS += \

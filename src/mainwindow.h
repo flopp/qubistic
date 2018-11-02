@@ -2,7 +2,6 @@
 
 #include <QtGui/QPixmap>
 #include <QtWidgets/QWidget>
-#include "configuration.h"
 class RenderProcess;
 class Ui_MainWindow;
 
@@ -47,5 +46,4 @@ private:
         double score_;
     };
     QList<ImageInfo> images_;
-    Configuration config_;
 };
