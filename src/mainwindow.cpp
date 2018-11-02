@@ -1,4 +1,5 @@
 #include <QtCore/QDebug>
+#include <QtGui/QImageReader>
 #include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QFileDialog>
 
@@ -33,12 +34,16 @@ void MainWindow::load()
 {
     stop();
 
-    QString fileName = QFileDialog::getOpenFileName(this, "Open Image", "", "Images (*.png *.jpg *.JPG *.jpeg)" );
+    QString fileName = QFileDialog::getOpenFileName(this, "Open Image", "", "Image Files (*.png *.jpg *.JPG *.jpeg);;All Files (*)" );
     
     if (fileName != "")
     {
-        startImage_.load(fileName);
-        startImage_ = startImage_.scaled(QSize{1024, 1024}, Qt::KeepAspectRatio);
+        // use QImageReader with 'autoTransform' to automatically apply image rotation based on the EXIF data.
+        QImageReader reader(fileName);
+        reader.setAutoTransform(true);
+        QImage image = reader.read().scaled(QSize{1024, 1024}, Qt::KeepAspectRatio);
+        startImage_ = QPixmap::fromImage(image);
+
         runRenderer();
     }
 }
