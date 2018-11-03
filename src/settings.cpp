@@ -63,8 +63,3 @@ void Settings::sync()
     settings_.setValue("primitiveBinPath", primitiveBinPath_);
     settings_.sync();
 }
-
-Settings& settings()
-{
-    return Settings::getInstance();
-}

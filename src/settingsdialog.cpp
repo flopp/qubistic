@@ -1,4 +1,5 @@
 #include <QtWidgets/QFileDialog>
+#include "application.h"
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
 
@@ -30,18 +31,18 @@ SettingsDialog::SettingsDialog(QWidget* parent) :
     connect(this, &SettingsDialog::accepted, this, &SettingsDialog::saveSettings);
 
     for (auto p: shapeTypeMapping_) {
-        if (p.second == settings().shapeType()) {
+        if (p.second == app().settings().shapeType()) {
             p.first->setChecked(true);
         }
     }
     for (auto p: targetTypeMapping_) {
-        if (p.second == settings().targetType()) {
+        if (p.second == app().settings().targetType()) {
             p.first->setChecked(true);
         }
     }
-    ui_->shapesInput->setValue(settings().targetShapes());
-    ui_->scoreInput->setValue(settings().targetScore());
-    ui_->pathInput->setText(settings().primitiveBinPath());
+    ui_->shapesInput->setValue(app().settings().targetShapes());
+    ui_->scoreInput->setValue(app().settings().targetScore());
+    ui_->pathInput->setText(app().settings().primitiveBinPath());
 }
 
 SettingsDialog::~SettingsDialog()
@@ -72,18 +73,18 @@ void SettingsDialog::saveSettings()
 {
     for (auto p: shapeTypeMapping_) {
         if (p.first->isChecked()) {
-            settings().setShapeType(p.second);
+            app().settings().setShapeType(p.second);
         }
     }
 
     for (auto p: targetTypeMapping_) {
         if (p.first->isChecked()) {
-            settings().setTargetType(p.second);
+            app().settings().setTargetType(p.second);
         }
     }
 
-    settings().setTargetShapes(ui_->shapesInput->value());
-    settings().setTargetScore(ui_->scoreInput->value());
-    settings().setPrimitiveBinPath(ui_->pathInput->text());
-    settings().sync();
+    app().settings().setTargetShapes(ui_->shapesInput->value());
+    app().settings().setTargetScore(ui_->scoreInput->value());
+    app().settings().setPrimitiveBinPath(ui_->pathInput->text());
+    app().settings().sync();
 }

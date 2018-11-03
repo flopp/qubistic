@@ -1,12 +1,12 @@
 #include <QtCore/QDebug>
 #include <QtCore/QStandardPaths>
-#include <QtGui/QGuiApplication>
 #include <QtGui/QImageReader>
 #include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QAbstractSlider>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 
+#include "application.h"
 #include "mainwindow.h"
 #include "renderprocess.h"
 #include "settings.h"
@@ -60,13 +60,13 @@ void MainWindow::runRenderer()
     images_.clear();
     ui_->imageWidget->showImage(startImage_);
 
-    if (settings().primitiveBinPath().isEmpty()) {
+    if (app().settings().primitiveBinPath().isEmpty()) {
         displayError("Cannot find 'primitive' executable.");
         return;
     }
-    QString path = QStandardPaths::findExecutable(settings().primitiveBinPath());
+    QString path = QStandardPaths::findExecutable(app().settings().primitiveBinPath());
     if (path.isEmpty()) {
-        displayError(QString("Cannot determine path to selected 'primitive' executable:\n%1").arg(settings().primitiveBinPath()));
+        displayError(QString("Cannot determine path to selected 'primitive' executable:\n%1").arg(app().settings().primitiveBinPath()));
         return;
     }
 
@@ -115,7 +115,7 @@ void MainWindow::renderingIntermediate(QByteArray svgData, int shapes, double sc
 
 void MainWindow::displayError(QString message)
 {
-    QMessageBox::critical(this, qApp->applicationName(), message);
+    QMessageBox::critical(this, app().name(), message);
 }
 
 void MainWindow::showImage(int index)

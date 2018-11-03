@@ -24,11 +24,7 @@ enum class TargetType
 class Settings
 {
     public:
-        static Settings& getInstance()
-        {
-            static Settings instance;
-            return instance;
-        }
+        Settings();
 
         void sync();
 
@@ -48,7 +44,6 @@ class Settings
         void setPrimitiveBinPath(const QString& primitiveBinPath) { primitiveBinPath_ = primitiveBinPath; }
 
     private:
-        Settings();
         QSettings settings_;
 
         ShapeType shapeType_{ShapeType::Triangles};
@@ -60,5 +55,3 @@ class Settings
         QList<QPair<ShapeType, QString>> shapeTypeMapping_;
         QList<QPair<TargetType, QString>> targetTypeMapping_;
 };
-
-Settings& settings();

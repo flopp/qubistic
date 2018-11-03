@@ -3,7 +3,7 @@
 #include <QtCore/QTemporaryDir>
 #include <QtGui/QPixmap>
 #include "renderprocess.h"
-#include "settings.h"
+#include "application.h"
 
 RenderProcess::RenderProcess(QObject* parent) :
     QObject(parent),
@@ -62,19 +62,19 @@ void RenderProcess::start(const QPixmap& image)
     QStringList processArgs;
     processArgs << "-v";
     processArgs << "-nth" << "1";
-    processArgs << "-m" << QString::number(static_cast<std::underlying_type<ShapeType>::type>(settings().shapeType()));
+    processArgs << "-m" << QString::number(static_cast<std::underlying_type<ShapeType>::type>(app().settings().shapeType()));
     processArgs << "-i" << tempDir_->filePath("start.png");
     processArgs << "-o" << tempDir_->filePath("result%d.svg");
-    switch (settings().targetType()) {
+    switch (app().settings().targetType()) {
         case TargetType::Shapes:
-            processArgs << "-n" << QString::number(settings().targetShapes());
+            processArgs << "-n" << QString::number(app().settings().targetShapes());
             break;
         case TargetType::Score:
             processArgs << "-n" << "10000";
             break;
     }
 
-    process_->start(settings().primitiveBinPath(), processArgs);
+    process_->start(app().settings().primitiveBinPath(), processArgs);
 }
 
 void RenderProcess::stop()
@@ -163,7 +163,8 @@ void RenderProcess::readProcessOutput()
         if (match.hasMatch()) {
             if (!lastImage_.isEmpty()) {
                 loadLastImage();
-                if ((settings().targetType() == TargetType::Score) && (lastScore_ > settings().targetScore())) {
+                if ((app().settings().targetType() == TargetType::Score) &&
+                        (lastScore_ > app().settings().targetScore())) {
                     stop();
                 }
             }
