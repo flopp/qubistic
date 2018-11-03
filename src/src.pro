@@ -1,4 +1,5 @@
 QT += core gui svg widgets
+CONFIG += debug
 
 TARGET = qubistic
 

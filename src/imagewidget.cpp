@@ -23,7 +23,7 @@ void ImageWidget::showSvgImage(const QByteArray& imageData)
     baseImage_ = resizedImage_ = QPixmap();
     if (!svgRenderer_->load(imageData))
     {
-        qDebug() << "cannot load svg data";
+        emit error("Cannot load SVG data.");
     }
     update();
 }

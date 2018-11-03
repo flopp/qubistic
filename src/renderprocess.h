@@ -3,6 +3,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
+#include <QtCore/QRegularExpression>
 
 class QPixmap;
 class QTemporaryDir;
@@ -22,10 +23,11 @@ public slots:
 signals:
     void finished();
     void intermediate(QByteArray svgData, int shapes, double score);
-    void aborted();
+    void error(QString message);
 
 private slots:
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void errorOccurred(QProcess::ProcessError error);
     void readProcessOutput();
 
 private:
@@ -34,6 +36,12 @@ private:
 private:
     QTemporaryDir* tempDir_{nullptr};
     QProcess* process_{nullptr};
+
+    QRegularExpression re_reading;
+    QRegularExpression re_writing;
+    QRegularExpression re_status0;
+    QRegularExpression re_status;
+    QRegularExpression re_parameters;
 
     bool killed_{false};
     QString lastImage_;

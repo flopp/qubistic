@@ -15,6 +15,9 @@ public:
     void showImage(const QPixmap& image);
     void showSvgImage(const QByteArray& imageData);
 
+signals:
+    void error(QString message);
+
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;

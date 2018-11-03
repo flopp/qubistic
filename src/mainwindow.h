@@ -17,6 +17,7 @@ public slots:
     void load();
     void stop();
     void showSettings();
+    void displayError(QString message);
 
 private:
     void runRenderer();
@@ -24,7 +25,6 @@ private:
 private slots:
     void renderingFinished();
     void renderingIntermediate(QByteArray svgData, int shapes, double score);
-    void renderingAborted();
     void showImage(int index);
 
 private:

@@ -26,8 +26,10 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(ui_->imageSlider, &QAbstractSlider::valueChanged, this, &MainWindow::showImage);
     
     connect(process_, &RenderProcess::finished, this, &MainWindow::renderingFinished);
-    connect(process_, &RenderProcess::aborted, this, &MainWindow::renderingAborted);
     connect(process_, &RenderProcess::intermediate, this, &MainWindow::renderingIntermediate);
+
+    connect(process_, &RenderProcess::error, this, &MainWindow::displayError);
+    connect(ui_->imageWidget, &ImageWidget::error, this, &MainWindow::displayError);
 }
 
 MainWindow::~MainWindow()
@@ -59,12 +61,12 @@ void MainWindow::runRenderer()
     ui_->imageWidget->showImage(startImage_);
 
     if (settings().primitiveBinPath().isEmpty()) {
-        QMessageBox::critical(this, qApp->applicationName(), "Cannot find 'primitive' executable.");
+        displayError("Cannot find 'primitive' executable.");
         return;
     }
     QString path = QStandardPaths::findExecutable(settings().primitiveBinPath());
     if (path.isEmpty()) {
-        QMessageBox::critical(this, qApp->applicationName(), QString("Cannot determine path to selected 'primitive' executable:\n%1").arg(settings().primitiveBinPath()));
+        displayError(QString("Cannot determine path to selected 'primitive' executable:\n%1").arg(settings().primitiveBinPath()));
         return;
     }
 
@@ -111,12 +113,9 @@ void MainWindow::renderingIntermediate(QByteArray svgData, int shapes, double sc
     showImage(images_.size() - 1);
 }
 
-void MainWindow::renderingAborted()
+void MainWindow::displayError(QString message)
 {
-    ui_->loadButton->setEnabled(true);
-    ui_->stopButton->setEnabled(false);
-    ui_->settingsButton->setEnabled(true);
-    ui_->imageSlider->setEnabled(false);
+    QMessageBox::critical(this, qApp->applicationName(), message);
 }
 
 void MainWindow::showImage(int index)
