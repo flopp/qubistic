@@ -17,7 +17,7 @@ enum class ShapeType
 
 enum class TargetType
 {
-    Shapes,
+    Steps,
     Score
 };
 
@@ -34,8 +34,8 @@ class Settings
         const TargetType& targetType() const { return targetType_; }
         void setTargetType(const TargetType& targetType) { targetType_ = targetType; }
 
-        int targetShapes() const { return targetShapes_; }
-        void setTargetShapes(int targetShapes) { targetShapes_ = targetShapes; }
+        int targetSteps() const { return targetSteps_; }
+        void setTargetSteps(int targetSteps) { targetSteps_ = targetSteps; }
 
         double targetScore() const { return targetScore_; }
         void setTargetScore(double targetScore) { targetScore_ = targetScore; }
@@ -43,14 +43,17 @@ class Settings
         const QString& primitiveBinPath() const { return primitiveBinPath_; }
         void setPrimitiveBinPath(const QString& primitiveBinPath) { primitiveBinPath_ = primitiveBinPath; }
 
+        int extraShapes() const { return extraShapes_; }
+        void setExtraShapes(int extraShapes) { extraShapes_ = extraShapes; }
     private:
         QSettings settings_;
 
         ShapeType shapeType_{ShapeType::Triangles};
-        TargetType targetType_{TargetType::Shapes};
-        int targetShapes_{100};
+        TargetType targetType_{TargetType::Steps};
+        int targetSteps_{100};
         double targetScore_{95.0};
         QString primitiveBinPath_{"primitive"};
+        int extraShapes_{0};
 
         QList<QPair<ShapeType, QString>> shapeTypeMapping_;
         QList<QPair<TargetType, QString>> targetTypeMapping_;

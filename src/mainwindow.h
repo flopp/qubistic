@@ -24,7 +24,7 @@ private:
 
 private slots:
     void renderingFinished();
-    void renderingIntermediate(QByteArray svgData, int shapes, double score);
+    void renderingIntermediate(QByteArray svgData, int steps, int shapes, double score);
     void showImage(int index);
 
 private:
@@ -33,15 +33,16 @@ private:
     QPixmap startImage_;
     
     struct ImageInfo {
-        ImageInfo(QPixmap image, QByteArray svgData, int shapes, double score) :
-            image_{image},
+        ImageInfo(QByteArray svgData, int steps, int shapes, double score) :
             svgData_{svgData},
+            steps_{steps},
             shapes_{shapes},
             score_{score}
         {}
         
         QPixmap image_;
         QByteArray svgData_;
+        int steps_;
         int shapes_;
         double score_;
     };

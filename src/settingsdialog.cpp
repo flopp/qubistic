@@ -21,7 +21,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) :
         << qMakePair(ui_->mixedButton, ShapeType::Mixed);
     
     targetTypeMapping_
-        << qMakePair(ui_->shapesRadioButton, TargetType::Shapes)
+        << qMakePair(ui_->stepsRadioButton, TargetType::Steps)
         << qMakePair(ui_->scoreRadioButton, TargetType::Score);
 
     connect(ui_->applyButton, &QAbstractButton::clicked, this, &SettingsDialog::accept);
@@ -40,8 +40,9 @@ SettingsDialog::SettingsDialog(QWidget* parent) :
             p.first->setChecked(true);
         }
     }
-    ui_->shapesInput->setValue(app().settings().targetShapes());
+    ui_->stepsInput->setValue(app().settings().targetSteps());
     ui_->scoreInput->setValue(app().settings().targetScore());
+    ui_->extraShapesInput->setValue(app().settings().extraShapes());
     ui_->pathInput->setText(app().settings().primitiveBinPath());
 }
 
@@ -83,8 +84,9 @@ void SettingsDialog::saveSettings()
         }
     }
 
-    app().settings().setTargetShapes(ui_->shapesInput->value());
+    app().settings().setTargetSteps(ui_->stepsInput->value());
     app().settings().setTargetScore(ui_->scoreInput->value());
+    app().settings().setExtraShapes(ui_->extraShapesInput->value());
     app().settings().setPrimitiveBinPath(ui_->pathInput->text());
     app().settings().sync();
 }

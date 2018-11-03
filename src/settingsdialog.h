@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QDialog>
 #include "settings.h"
+
 class QAbstractButton;
 class Ui_SettingsDialog;
 
@@ -15,7 +16,9 @@ public:
     
     void toggleApplyAndRun(bool enabled);
 
-    bool applyAndRun() { return applyAndRun_; }
+    bool applyAndRun() {
+        return applyAndRun_;
+    }
 
 private slots:
     void applyAndRunClicked();

@@ -22,7 +22,7 @@ public slots:
 
 signals:
     void finished();
-    void intermediate(QByteArray svgData, int shapes, double score);
+    void intermediate(QByteArray svgData, int steps, int shapes, double score);
     void error(QString message);
 
 private slots:
@@ -45,6 +45,7 @@ private:
 
     bool killed_{false};
     QString lastImage_;
+    int lastSteps_{0};
     int lastShapes_{0};
     double lastScore_{0};
 };

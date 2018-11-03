@@ -11,8 +11,10 @@ ImageWidget::ImageWidget(QWidget* parent) :
 ImageWidget::~ImageWidget()
 {}
 
-void ImageWidget::showImage(const QPixmap& image)
+void ImageWidget::setBaseImage(const QPixmap& image)
 {
+    hasSvg_ = false;
+    baseShown_ = false;
     baseImage_ = image;
     resizedImage_ = baseImage_.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     update();
@@ -20,12 +22,15 @@ void ImageWidget::showImage(const QPixmap& image)
 
 void ImageWidget::showSvgImage(const QByteArray& imageData)
 {
-    baseImage_ = resizedImage_ = QPixmap();
-    if (!svgRenderer_->load(imageData))
-    {
+    hasSvg_ = true;
+    //baseImage_ = resizedImage_ = QPixmap();
+    if (!svgRenderer_->load(imageData)) {
+        hasSvg_ = false;
         emit error("Cannot load SVG data.");
     }
-    update();
+    if (!baseShown_) {
+        update();
+    }
 }
 
 void ImageWidget::paintEvent(QPaintEvent* /*event*/)
@@ -34,16 +39,16 @@ void ImageWidget::paintEvent(QPaintEvent* /*event*/)
     p.setWindow(rect());
     p.fillRect(rect(), Qt::black);
 
-    if (!baseImage_.isNull())
-    {
-        const int w = resizedImage_.width();
-        const int h = resizedImage_.height();
-        const int x = (width() - w) / 2;
-        const int y = (height() - h) / 2;
-        p.drawPixmap(x, y, resizedImage_, 0, 0, w, h);
-    }
-    else if (svgRenderer_->isValid())
-    {
+    if (baseShown_ || !hasSvg_) {
+        if (!baseImage_.isNull())
+        {
+            const int w = resizedImage_.width();
+            const int h = resizedImage_.height();
+            const int x = (width() - w) / 2;
+            const int y = (height() - h) / 2;
+            p.drawPixmap(x, y, resizedImage_, 0, 0, w, h);
+        }
+    } else if (svgRenderer_->isValid()) {
         QRect viewbox = svgRenderer_->viewBox();
         double scale = 1;
         int x = 0;
@@ -80,5 +85,19 @@ void ImageWidget::resizeEvent(QResizeEvent* /*event*/)
             return;
         }
         resizedImage_ = baseImage_.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
+}
+
+void ImageWidget::mousePressEvent(QMouseEvent* /*event*/) {
+    if (!baseShown_) {
+        baseShown_ = true;
+        update();
+    }
+}
+
+void ImageWidget::mouseReleaseEvent(QMouseEvent* /*event*/) {
+    if (baseShown_) {
+        baseShown_ = false;
+        update();
     }
 }

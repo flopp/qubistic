@@ -50,9 +50,9 @@ void RenderProcess::start(const QPixmap& image)
         return;
     }
     
-    QFile file(tempDir_->filePath("start.png"));
+    QFile file(tempDir_->filePath("start.jpg"));
     file.open(QIODevice::WriteOnly);
-    image.save(&file, "PNG");
+    image.save(&file, "JPG");
     file.close();
  
     lastImage_.clear();
@@ -63,11 +63,14 @@ void RenderProcess::start(const QPixmap& image)
     processArgs << "-v";
     processArgs << "-nth" << "1";
     processArgs << "-m" << QString::number(static_cast<std::underlying_type<ShapeType>::type>(app().settings().shapeType()));
-    processArgs << "-i" << tempDir_->filePath("start.png");
+    if (app().settings().extraShapes() > 0) {
+        processArgs << "-rep" << QString::number(app().settings().extraShapes());
+    }
+    processArgs << "-i" << tempDir_->filePath("start.jpg");
     processArgs << "-o" << tempDir_->filePath("result%d.svg");
     switch (app().settings().targetType()) {
-        case TargetType::Shapes:
-            processArgs << "-n" << QString::number(app().settings().targetShapes());
+        case TargetType::Steps:
+            processArgs << "-n" << QString::number(app().settings().targetSteps());
             break;
         case TargetType::Score:
             processArgs << "-n" << "10000";
@@ -142,6 +145,7 @@ void RenderProcess::readProcessOutput()
         match = re_status0.match(line);
         if (match.hasMatch()) {
             Q_ASSERT(lastImage_.isEmpty());
+            lastSteps_ = 0;
             lastShapes_ = 0;
             lastScore_ = 100.0 * (1.0 - match.captured(1).toFloat());
             continue;
@@ -168,7 +172,8 @@ void RenderProcess::readProcessOutput()
                     stop();
                 }
             }
-            lastShapes_ = match.captured(1).toInt();
+            lastSteps_ = match.captured(1).toInt();
+            lastShapes_ = lastSteps_ * (1 + app().settings().extraShapes());
             lastScore_ = 100.0 * (1.0 - match.captured(3).toFloat());
             continue;
         }
@@ -194,7 +199,9 @@ void RenderProcess::loadLastImage()
     if (!file.open(QIODevice::ReadOnly)) {
         emit error(QString("Failed to load image file:\n%1").arg(lastImage_));
     } else {
-        emit intermediate(file.readAll(), lastShapes_, lastScore_);
+        QDir dir;
+        dir.remove(lastImage_);
+        emit intermediate(file.readAll(), lastSteps_, lastShapes_, lastScore_);
     }
     lastImage_.clear();
 }

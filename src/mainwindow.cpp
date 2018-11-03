@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget* parent) :
     process_{new RenderProcess{this}}
 {
     ui_->setupUi(this);
+    setWindowTitle(app().name());
 
     connect(ui_->loadButton, &QAbstractButton::clicked, this, &MainWindow::load);
     connect(ui_->stopButton, &QAbstractButton::clicked, this, &MainWindow::stop);
@@ -58,7 +59,7 @@ void MainWindow::load()
 void MainWindow::runRenderer()
 {  
     images_.clear();
-    ui_->imageWidget->showImage(startImage_);
+    ui_->imageWidget->setBaseImage(startImage_);
 
     if (app().settings().primitiveBinPath().isEmpty()) {
         displayError("Cannot find 'primitive' executable.");
@@ -101,15 +102,14 @@ void MainWindow::renderingFinished()
     ui_->settingsButton->setEnabled(true);
     ui_->imageSlider->setEnabled(true);
 
-    images_ << ImageInfo{startImage_, QByteArray{}, -1, 100.0};
     ui_->imageSlider->setRange(0, images_.size() - 1);
-    ui_->imageSlider->setValue(images_.size() - 2);
+    ui_->imageSlider->setValue(images_.size() - 1);
 }
 
 
-void MainWindow::renderingIntermediate(QByteArray svgData, int shapes, double score)
+void MainWindow::renderingIntermediate(QByteArray svgData, int steps, int shapes, double score)
 {
-    images_ << ImageInfo{QPixmap{}, svgData, shapes, score};
+    images_ << ImageInfo{svgData, steps, shapes, score};
     showImage(images_.size() - 1);
 }
 
@@ -124,15 +124,15 @@ void MainWindow::showImage(int index)
         return;
     }
     const auto& info = images_[index];
-    
-    if (!info.image_.isNull()) {
-        ui_->imageWidget->showImage(info.image_);
-    } else {
-        ui_->imageWidget->showSvgImage(info.svgData_);
-    }
+    ui_->imageWidget->showSvgImage(info.svgData_);
 
+    if (info.steps_ < 0) {
+        ui_->stepsLabel->setText("n/a");
+    } else {
+        ui_->stepsLabel->setText(QString::number(info.steps_));
+    }
     if (info.shapes_ < 0) {
-        ui_->shapesLabel->setText("\u221e");
+        ui_->shapesLabel->setText("n/a");
     } else {
         ui_->shapesLabel->setText(QString::number(info.shapes_));
     }

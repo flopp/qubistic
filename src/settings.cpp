@@ -13,7 +13,7 @@ Settings::Settings()
         << qMakePair(ShapeType::Beziers, QString("Beziers"))
         << qMakePair(ShapeType::Mixed, QString("Mixed"));
     targetTypeMapping_
-        << qMakePair(TargetType::Shapes, QString("Shapes"))
+        << qMakePair(TargetType::Steps, QString("Steps"))
         << qMakePair(TargetType::Score, QString("Score"));
 
     QString shape = settings_.value("shapeType").value<QString>();
@@ -30,14 +30,21 @@ Settings::Settings()
         }
     }
 
-    targetShapes_ = settings_.value("targetShapes").value<int>();
-    if (targetShapes_ <= 0) {
-        targetShapes_ = 100;
+    targetSteps_ = settings_.value("targetShapes").value<int>();
+    if (targetSteps_ <= 0) {
+        targetSteps_ = 100;
     }
     targetScore_ = settings_.value("targetScore").value<double>();
     if ((targetScore_ < 0.0) || (targetScore_ > 100.0)) {
         targetScore_ = 95.0;
     }
+    extraShapes_ = settings_.value("extraShapes").value<int>();
+    if (extraShapes_ < 0) {
+        extraShapes_ = 0;
+    } else if (extraShapes_ > 10) {
+        extraShapes_ = 10;
+    }
+
     primitiveBinPath_ = settings_.value("primitiveBinPath").value<QString>();
     if (primitiveBinPath_.isEmpty()) {
         primitiveBinPath_ = "primitive";
@@ -58,8 +65,9 @@ void Settings::sync()
             break;
         }
     }
-    settings_.setValue("targetShapes", targetShapes_);
+    settings_.setValue("targetShapes", targetSteps_);
     settings_.setValue("targetScore", targetScore_);
+    settings_.setValue("extraShapes", extraShapes_);
     settings_.setValue("primitiveBinPath", primitiveBinPath_);
     settings_.sync();
 }
