@@ -15,12 +15,11 @@ public:
 
 public slots:
     void load();
+    void save();
+    void start();
     void stop();
     void showSettings();
     void displayError(QString message);
-
-private:
-    void runRenderer();
 
 private slots:
     void renderingFinished();

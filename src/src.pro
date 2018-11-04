@@ -12,7 +12,8 @@ SOURCES += \
     mainwindow.cpp \
     renderprocess.cpp \
     settings.cpp \
-    settingsdialog.cpp
+    settingsdialog.cpp \
+    statuswidget.cpp
 
 HEADERS += \
     application.h \
@@ -20,11 +21,13 @@ HEADERS += \
     mainwindow.h \
     renderprocess.h \
     settings.h \
-    settingsdialog.h
+    settingsdialog.h \
+    statuswidget.h
 
 FORMS += \
     mainwindow.ui \
-    settingsdialog.ui
+    settingsdialog.ui \
+    statuswidget.ui
 
 RESOURCES += \
     resources.qrc
