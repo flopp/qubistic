@@ -8,7 +8,7 @@ class StatusWidget: public QWidget
     Q_OBJECT
 
 public:
-    explicit StatusWidget(QWidget* parent = nullptr);
+    explicit StatusWidget(QWidget* parent = nullptr, QString label = QString{"Status"});
     virtual ~StatusWidget();
 
     void setLabel(const QString& label);

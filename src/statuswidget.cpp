@@ -1,11 +1,12 @@
 #include "statuswidget.h"
 #include "ui_statuswidget.h"
 
-StatusWidget::StatusWidget(QWidget* parent) :
+StatusWidget::StatusWidget(QWidget* parent, QString label) :
     QWidget{parent},
     ui_{new Ui_StatusWidget}
 {
     ui_->setupUi(this);
+    setLabel(label);
 }
 
 StatusWidget::~StatusWidget()

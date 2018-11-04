@@ -28,6 +28,3 @@ FORMS += \
     mainwindow.ui \
     settingsdialog.ui \
     statuswidget.ui
-
-RESOURCES += \
-    resources.qrc
